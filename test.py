@@ -2,9 +2,16 @@ from etc import Logger, LxiDevice
 
 def pwm(frequency=1, duty=0.5, level=(0, 1.5), seconds=False):
 
-    generator('CHN', 1)
     generator('CHN?')
-    assert generator() == str(1)
+    channel = int(generator())
+
+    if channel != 1:
+
+        generator('CHN', 1)
+        generator('CHN?')
+        channel = int(generator())
+        assert channel == 1
+
     generator('OUTPUT', 'OFF')
 
     if seconds:
@@ -31,10 +38,15 @@ def pwm(frequency=1, duty=0.5, level=(0, 1.5), seconds=False):
 
 def ohm():
 
-    multmeter('OHMS')
     multmeter('MODE?')
-    mode = multmeter()
-    assert 'OHM' in mode.upper(), str(mode)
+    mode = multmeter().upper()
+
+    if 'OHM' not in mode:
+
+        multmeter('OHMS')
+        multmeter('MODE?')
+        mode = multmeter().upper()
+        assert 'OHM' in mode, str(mode)
 
     multmeter('READ?')
     value = float(multmeter().split(' ')[0])
